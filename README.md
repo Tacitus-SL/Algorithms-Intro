@@ -1,7 +1,20 @@
 # Algorithms-Intro
 
-## 1. Что такое time complexity и зачем она нужна
-
+## Оглавление:
+- [1. Time complexity и примеры](#1-что-такое-time-complexity)
+  - [Циклы for](#11-цикл-for)
+  - [Циклы while](#12-цикл-while)
+  - [Комбинация разных циклов](#13-комбинация-разных-циклов)
+  - [Оператор if](#14-оператор-if)
+  - [Рекурсия](#15-рекурсия)
+  - [Мини-таблица](#16-мини-таблица)
+  - [Примеры](#17-примеры)
+- [2. Сортировки](#2-сортировки)
+  - [Insertion Sort](#21-insertion-sort)
+  - [Bubble Sort](#22-bubble-sort)
+  - [Selection Sort](#23-selection-sort)
+  - [Merge Sort](#24-merge-sort-divide-and-conquer)
+## 1. Что такое time complexity
 **Time complexity** — это оценка того, как растёт время работы алгоритма при увеличении входных данных. Нас интересует асимптотическое поведение при больших n.
 
 Обычно time complexity записывают через Big O. Для определения асимптотики мы всегда берём худший случай и отбрасываем константы и незначащие слагаемые.
@@ -12,7 +25,7 @@
 3) Берёшь самый быстрорастущий член
 4) Записываешь Big O
 
-### 1.1 Циклы `for`:
+### 1.1 Цикл `for`:
 - **Обычный:**
 ```c
 for (int i = 0; i < n; i++) {
@@ -78,7 +91,7 @@ while (n > 1) {
 ```
 Сколько раз делим n на 2, пока не станет 1? log₂(n) ⮕ O(log n)
 
-### 1.3 **Комбинация разных циклов:**
+### 1.3 Комбинация разных циклов:
 ```c
 for (int i = 0; i < n; i++) {      // O(n)
     while (j > 1) {               // O(log n)
@@ -88,7 +101,7 @@ for (int i = 0; i < n; i++) {      // O(n)
 ```
 n * log n ⮕ O(n log n)
 
-### 1.4 Условные операторы if
+### 1.4 Оператор if
 ```c
 if (x > 0) {
     // O(n)
@@ -175,3 +188,89 @@ for (int i = 0; i < n; i++) {
 }
 ```
 O(n²)
+
+## 2. Сортировки
+### 2.1 Insertion Sort
+Идея:
+- Считаем, что первые k элементов отсортированы
+- Берём следующий элемент и вставляем в правильное место
+- Хорошо для почти отсортированных массивов
+```python
+def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+Time complexity: O(n²)
+
+### 2.2 Bubble Sort
+Идея:
+- Проходим по массиву, сравниваем соседние элементы
+- Меняем их местами, если порядок неправильный
+- Повторяем, пока массив не отсортирован
+```python
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        swapped = False
+        for j in range(0, n-i-1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+                swapped = True
+        if not swapped:
+            break
+    return arr
+```
+Time complexity: O(n²)
+
+### 2.3 Selection Sort
+Идея:
+- Находим минимальный элемент
+- Меняем его с первым, потом со вторым, и так далее
+- Всегда делает O(n²) сравнений
+```python
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        min_idx = i
+        for j in range(i+1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+    return arr
+```
+Time complexity: O(n²)
+
+### 2.4 Merge Sort (Divide and Conquer)
+Идея:
+- Разделяем массив на две половины
+- Сортируем рекурсивно каждую половину
+- Сливаем две отсортированные части
+```python
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    mid = len(arr)//2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+    
+    # Merge
+    merged = []
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if left[i] < right[j]:
+            merged.append(left[i])
+            i += 1
+        else:
+            merged.append(right[j])
+            j += 1
+    merged += left[i:]
+    merged += right[j:]
+    return merged
+```
+Time complexity: O(n log n)
