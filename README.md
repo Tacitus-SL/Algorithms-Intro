@@ -9,11 +9,13 @@
   - [Рекурсия](#15-рекурсия)
   - [Мини-таблица](#16-мини-таблица)
   - [Примеры](#17-примеры)
-- [2. Сортировки](#2-сортировки)
-  - [Insertion Sort](#21-insertion-sort)
-  - [Bubble Sort](#22-bubble-sort)
-  - [Selection Sort](#23-selection-sort)
-  - [Merge Sort](#24-merge-sort-divide-and-conquer)
+- [2. Master's Theorem](#2-masters-theorem)
+
+- [3. Сортировки](#3-сортировки)
+  - [Insertion Sort](#31-insertion-sort)
+  - [Bubble Sort](#32-bubble-sort)
+  - [Selection Sort](#33-selection-sort)
+  - [Merge Sort](#34-merge-sort-divide-and-conquer)
 ## 1. Что такое time complexity
 **Time complexity** — это оценка того, как растёт время работы алгоритма при увеличении входных данных. Нас интересует асимптотическое поведение при больших n.
 
@@ -188,9 +190,19 @@ for (int i = 0; i < n; i++) {
 }
 ```
 O(n²)
+---
 
-## 2. Сортировки
-### 2.1 Insertion Sort
+### 2. Master's Theorem
+Иногда рекурсию можно представить как $T(n) = aT(n/b)+O(nᵈ)$.
+
+Тогда, сложность алгоритма оценивается в 3 случаях:
+
+1) $O(n^d)$, если $d > log_ba$
+2) $O(n^dlog_bn)$, если $d = log_ba$
+3) $O(n^{log_ba})$, если $d < log_ba$
+
+## 3. Сортировки
+### 3.1 Insertion Sort
 Идея:
 - Считаем, что первые k элементов отсортированы
 - Берём следующий элемент и вставляем в правильное место
@@ -208,7 +220,7 @@ def insertion_sort(arr):
 ```
 Time complexity: O(n²)
 
-### 2.2 Bubble Sort
+### 3.2 Bubble Sort
 Идея:
 - Проходим по массиву, сравниваем соседние элементы
 - Меняем их местами, если порядок неправильный
@@ -228,7 +240,7 @@ def bubble_sort(arr):
 ```
 Time complexity: O(n²)
 
-### 2.3 Selection Sort
+### 3.3 Selection Sort
 Идея:
 - Находим минимальный элемент
 - Меняем его с первым, потом со вторым, и так далее
@@ -246,7 +258,7 @@ def selection_sort(arr):
 ```
 Time complexity: O(n²)
 
-### 2.4 Merge Sort (Divide and Conquer)
+### 3.4 Merge Sort (Divide and Conquer)
 Идея:
 - Разделяем массив на две половины
 - Сортируем рекурсивно каждую половину
