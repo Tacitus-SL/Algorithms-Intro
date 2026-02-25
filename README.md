@@ -16,10 +16,14 @@
   - [Selection Sort](#33-selection-sort)
   - [Merge Sort](#34-merge-sort-divide-and-conquer)
   - [Heap Sort](#35-heap-sort)
+  - [Quick Sort](#36-quick-sort)
 - [4. Data Structures](#4-data-structures)
   - [Ram-model](#41-ram-model)
   - [Array](#42-array)
   - [Heaps](#43-heaps-priority-queues)
+- [5. Randomized Algorithms](#5-randomized-algorithms)
+- [6. Hoare Algorithm](#6-hoare-algorithm)
+- [7. Median of Medians](#7-median-of-medians)
 
 ## 1. Что такое time complexity
 **Time complexity** — это оценка того, как растёт время работы алгоритма при увеличении входных данных. Нас интересует асимптотическое поведение при больших n.
@@ -296,6 +300,7 @@ def merge_sort(arr):
 Time complexity: $O(n \log n)$
 
 ### 3.5 Heap Sort
+Идея:
 - Строим кучу: Проходим по массиву и для каждого элемента вызываем $insert(x)$
 - Извлекаем корень: Забираем значение из $H[0]$ — это наш текущий минимум..
 - Восстанавливаем структуру: На место $H[0]$ ставим самый последний элемент кучи $H[n-1]$ и вызываем $sift$ $down(0)$, чтобы этот элемент встал на свое место.
@@ -316,6 +321,29 @@ def heap_sort(arr):
     return result
 ```
 Time complexity: $O(n \log n)$
+
+### 3.6 Quick Sort
+Идея:
+- Выбираем случайный опорный элемент $x$
+- Разбиваем массив на три части: меньше $x$, равные $x$ и больше $x$
+- Рекурсивно сортируем части с меньшими и большими элементами
+```python
+import random
+
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    
+    x = random.choice(arr)
+    
+    less = [i for i in arr if i < x]
+    equal = [i for i in arr if i == x]
+    greater = [i for i in arr if i > x]
+    
+    return quick_sort(less) + equal + quick_sort(greater)
+```
+Time complexity: $O(n \log n)$
+
 ---
 
 ## 4. Data Structures
@@ -336,8 +364,8 @@ Heap (она же куча) это структура данных, котора
 Кучу удобно хранить в обычном массиве, заполняя элементами сверху вниз, слева направо:
 
 - Корень в $H[0]$
-- Левый ребенок узла $i$: $2*i + 1$
-- Правый ребенок узла $i$: $2*i + 2$
+- Левый ребенок узла $i$: $2i + 1$
+- Правый ребенок узла $i$: $2i + 2$
 - Родитель узла $i$: $(i - 1) // 2$
 
 Операции:
@@ -352,3 +380,87 @@ Heap (она же куча) это структура данных, котора
 2. Чтобы структура дерева не развалилась, мы берем самый последний элемент из массива и ставим его на место корня.
 3. Теперь этот большой элемент должен спуститься на свое место: выбираем меньшего из двух детей, если наш элемент больше мина, свапаем их
 4. Повторяем процесс, пока не найдет своего места
+
+---
+
+## 5. Randomized Algorithms
+Входные данные подаются в алгоритм при помощи генератора случайных чисел. Исход может меняться от запуска к запуску.
+
+Среднее время: $\overline{T}(n) = E(T(n))$ — это мат ожидание времени работы. 
+
+Худшее среднее: $\hat{T}(n) = \max(E(T(input)))$ — это худший случай для мат ожидания.
+
+---
+## 6. Hoare Algorithm
+Задача: найти элемент, который стоял бы на $k$-м месте, если бы массив был отсортирован (например, найти медиану)
+Идея: После split мы смотрим, в какой части оказался индекс $k$. Если $k < m$ (индекс раздела), мы идем только в левую часть. Если больше — в правую.
+
+```python
+import random
+
+def quick_select(arr, k):
+    def select(left, right, k_idx):
+        if left == right:
+            return arr[left]
+        
+        pivot_idx = partition(left, right)
+        
+        if k_idx == pivot_idx:
+            return arr[k_idx]
+        elif k_idx < pivot_idx:
+            return select(left, pivot_idx - 1, k_idx)
+        else:
+            return select(pivot_idx + 1, right, k_idx)
+
+    def partition(left, right):
+        rand_idx = random.randint(left, right)
+        arr[rand_idx], arr[right] = arr[right], arr[rand_idx]
+        x = arr[right]
+        i = left
+        for j in range(left, right):
+            if arr[j] <= x:
+                arr[i], arr[j] = arr[j], arr[i]
+                i += 1
+        arr[i], arr[right] = arr[right], arr[i]
+        return i
+
+    return select(0, len(arr) - 1, k)
+```
+Time complexity: $O(n \log n)$: Поскольку мы каждый раз отбрасываем примерно половину массива, время работы составляет $n + n/2 + n/4 \dots = O(n)$.
+
+---
+
+## 7. Median of Medians
+Идея:
+- Разбиваем массив на группы по 5 элементов.
+- Находим медиану в каждой группе (сортировкой 5 элементов).
+- Рекурсивно находим медиану среди полученных медиан — это наш опорный элемент $x$.
+- Используем $x$ для разделения массива (partition) и продолжаем поиск в нужной части.
+```python
+def get_median(sub_arr):
+    return sorted(sub_arr)[len(sub_arr) // 2]
+
+def median_of_medians(arr, k):
+    if len(arr) <= 5:
+        return sorted(arr)[k]
+
+    subgroups = [arr[i:i + 5] for i in range(0, len(arr), 5)]
+    medians = [get_median(group) for group in subgroups]
+
+    x = median_of_medians(medians, len(medians) // 2)
+
+    less = [i for i in arr if i < x]
+    equal = [i for i in arr if i == x]
+    greater = [i for i in arr if i > x]
+
+    m = len(less)
+    e = len(equal)
+    
+    if k < m:
+        return median_of_medians(less, k)
+    elif k < m + e:
+        return x
+    else:
+        return median_of_medians(greater, k - m - e)
+```
+Time complexity: $O(n)$ в худшем случае.
