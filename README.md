@@ -17,6 +17,9 @@
   - [Merge Sort](#34-merge-sort-divide-and-conquer)
   - [Heap Sort](#35-heap-sort)
   - [Quick Sort](#36-quick-sort)
+  - [Counting Sort](#37-counting-sort)
+  - [Radix Sort](#38-radix-sort)
+  - [Binary Seacrh](#39-binary-search)
 - [4. Data Structures](#4-data-structures)
   - [Ram-model](#41-ram-model)
   - [Array](#42-array)
@@ -342,8 +345,86 @@ def quick_sort(arr):
     
     return quick_sort(less) + equal + quick_sort(greater)
 ```
-Time complexity: $O(n \log n)$
+Time complexity: $O(n \log n)$. 
 
+### 3.7 Counting Sort
+Идея:
+- Создаем вспомогательный массив C размером $m$ (диапазон чисел), где индекс соответствует значению элемента.
+- Проходим по исходному массиву и считаем, сколько раз встретилось каждое число.
+- Затем просто выписываем числа по порядку согласно их количеству.
+```python
+def counting_sort(a):
+    m = max(a)
+    n = len(a)
+
+    c = [0] * (m + 1)
+    
+    for x in a:
+        c[x] += 1
+    
+    a_prime = []
+    for value in range(len(c)):
+        a_prime.extend([value] * c[value])
+        
+    return a_prime
+```
+Time complexity: $O(n+m)$. Если диапазон $m$ сопоставим с $n$, то это работает за линейное время $O(n)$.
+
+### 3.8 Radix Sort
+Если числа большие (например, до $n^2$), но нам все равно нужно $O(n)$.
+Идея:
+- Представить каждое число $a_i$ как пару координат $(x_i, y_i)$. Где $x_i = \lfloor a_i / n \rfloor$  и $y_i = a_i \pmod n$ (остаток от деления).
+- Дважды применяем Counting Sort. Сначала сортируем по «младшему» разряду ($y_i$), затем по «старшему» ($x_i$).
+```python
+def radix_sort_n2(a):
+    n = len(a)
+
+    def counting_sort_for_radix(arr, getter):
+        count = [0] * n
+        for x in arr:
+            count[getter(x)] += 1
+        
+        for i in range(1, n):
+            count[i] += count[i-1]
+        
+        res = [0] * len(arr)
+        for x in reversed(arr):
+            digit = getter(x)
+            count[digit] -= 1
+            res[count[digit]] = x
+        return res
+
+    a = counting_sort_for_radix(a, lambda val: val % n)
+    
+    a = counting_sort_for_radix(a, lambda val: val // n)
+    
+    return a
+```
+Time complexity: $O(n)$.
+
+### 3.9 Binary search
+Быстрый поиск элемента в уже отсортированном массиве.
+Идея:
+- Берем границы $l=0$ и $r=n-1$.
+- Находим середину $m = (l + r) / 2$.
+- Если искомое число больше того, что в середине, отбрасываем левую половину ($l = m + 1$). Иначе отбрасываем правую ($r = m$).
+```python
+def binary_search(a, x):
+    l = 0
+    r = len(a) - 1
+    
+    while r - l >= 1:
+        m = (l + r) // 2
+        if a[m] < x:
+            l = m + 1
+        else:
+            r = m
+            
+    if a[l] == x:
+        return l
+    return -1
+```
+Time complexity: $O(\log n)$
 ---
 
 ## 4. Data Structures
